@@ -1,8 +1,8 @@
+import validator from "email-validator";
 import { mkConfig, generateCsv, asString } from "export-to-csv";
 import { XMLParser } from "fast-xml-parser";
-import { writeFile } from "node:fs";
 import { Buffer } from "node:buffer";
-import validator from "email-validator";
+import { writeFile } from "node:fs";
 
 const baseUrl = "";
 const adminUser = "";
@@ -39,10 +39,9 @@ const fetchTokenAndSiteId = async () => {
   const responseData = await dataResponse.text();
 
   const xmlParser = new XMLParser(xmlParserOptions);
-
   const responseText = xmlParser.parse(responseData);
 
-  const credentials = responseText.tsResponse.credentials;
+  const credentials = responseText?.tsResponse?.credentials;
 
   return {
     token: credentials?.["@_token"],
@@ -127,9 +126,7 @@ const getEmailAddress = (emailValue, fullNameValue, nameValue) => {
   return null;
 };
 
-(async () => {
-  const tokenAndSiteId = await fetchTokenAndSiteId();
-
+const getUsersOnSite = async (tokenAndSiteId) => {
   let userCount = await fetchUserCount(tokenAndSiteId);
   let shouldPageNext = userCount - 1000 > 1000;
   let pageNumber = 1;
@@ -164,6 +161,8 @@ const getEmailAddress = (emailValue, fullNameValue, nameValue) => {
     userCount = userCount - 1000;
     pageNumber = shouldPageNext ? pageNumber + 1 : pageNumber;
 
+    console.log({ tempUsers });
+
     if (tempUsers && tempUsers.length > 0) {
       userStorage = [...userStorage, ...tempUsers];
     }
@@ -171,11 +170,15 @@ const getEmailAddress = (emailValue, fullNameValue, nameValue) => {
 
   console.log({ userStorage });
 
+  return userStorage;
+};
+
+const exportUsersToCSV = (usersArray) => {
   const csvConfig = mkConfig({
     useKeysAsHeaders: true,
     filename: "tableau_users",
   });
-  const csv = generateCsv(csvConfig)(userStorage);
+  const csv = generateCsv(csvConfig)(usersArray);
   const csvFilename = `./dist/${csvConfig.filename}.csv`;
   const csvBuffer = new Uint8Array(Buffer.from(asString(csv)));
 
@@ -183,4 +186,12 @@ const getEmailAddress = (emailValue, fullNameValue, nameValue) => {
     if (err) throw err;
     console.log("file saved: ", csvFilename);
   });
+};
+
+(async () => {
+  const tokenAndSiteId = await fetchTokenAndSiteId();
+
+  const userStorage = await getUsersOnSite(tokenAndSiteId);
+
+  exportUsersToCSV(userStorage);
 })();
