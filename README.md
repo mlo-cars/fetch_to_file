@@ -1,2 +1,3 @@
 # fetch_to_file
-fetches data to a file
+
+Fetches data from endpoint to a file

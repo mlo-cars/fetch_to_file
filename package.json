@@ -1,0 +1,21 @@
+{
+  "name": "fetch_to_file",
+  "version": "0.0.1",
+  "description": "fetches data from endpoint to file",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "node buildscripts/build.mjs",
+    "app": "node dist/index.js",
+    "build_and_run": "npm run build && npm run app"
+  },
+  "author": "mlo",
+  "license": "ISC",
+  "dependencies": {
+    "export-to-csv": "^1.2.2",
+    "fast-xml-parser": "^4.3.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
