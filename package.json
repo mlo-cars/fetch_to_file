@@ -12,6 +12,7 @@
   "author": "mlo",
   "license": "ISC",
   "dependencies": {
+    "email-validator": "^2.0.4",
     "export-to-csv": "^1.2.2",
     "fast-xml-parser": "^4.3.4"
   },
