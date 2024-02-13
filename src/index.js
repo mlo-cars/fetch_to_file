@@ -2,6 +2,7 @@ import { mkConfig, generateCsv, asString } from "export-to-csv";
 import { XMLParser } from "fast-xml-parser";
 import { writeFile } from "node:fs";
 import { Buffer } from "node:buffer";
+import validator from "email-validator";
 
 const baseUrl = "";
 const adminUser = "";
@@ -106,27 +107,51 @@ const fetchUsersByPage = async ({ token, siteId }, pageNumber) => {
   return countResponseText?.tsResponse?.users;
 };
 
+const getEmailAddress = (emailValue, fullNameValue, nameValue) => {
+  const hasEmailInEmailField = validator.validate(emailValue);
+  const hasEmailInFullName = validator.validate(fullNameValue);
+  const hasEmailInName = validator.validate(nameValue);
+
+  if (hasEmailInEmailField) {
+    return emailValue;
+  }
+
+  if (hasEmailInFullName) {
+    return fullNameValue;
+  }
+
+  if (hasEmailInName) {
+    return nameValue;
+  }
+
+  return null;
+};
+
 (async () => {
   const tokenAndSiteId = await fetchTokenAndSiteId();
 
   let userCount = await fetchUserCount(tokenAndSiteId);
   let shouldPageNext = userCount - 1000 > 1000;
   let pageNumber = 1;
-
-  console.log({ shouldPageNext, userCount });
-
   let userStorage = [];
 
   do {
     const usersOnPage = await fetchUsersByPage(tokenAndSiteId, pageNumber);
 
     const tempUsers = usersOnPage?.user?.reduce((accum, currentValue) => {
-      if (currentValue?.["@_email"]) {
+      const emailValue = currentValue?.["@_email"];
+      const fullNameValue = currentValue?.["@_fullName"];
+      const nameValue = currentValue?.["@_name"];
+
+      const parsedEmail = getEmailAddress(emailValue, fullNameValue, nameValue);
+
+      if (parsedEmail) {
         const userObj = {
           id: currentValue?.["@_id"],
-          email: currentValue?.["@_email"],
-          fullName: currentValue?.["@_fullName"],
-          name: currentValue?.["@_name"],
+          email: emailValue,
+          fullName: fullNameValue,
+          name: nameValue,
+          parsedEmail: parsedEmail,
         };
 
         accum.push(userObj);
@@ -135,14 +160,13 @@ const fetchUsersByPage = async ({ token, siteId }, pageNumber) => {
       return accum;
     }, []);
 
-    // shouldPageNext = userCount - 1000 > 0;
-    // pageNumber = shouldPageNext ? pageNumber + 1 : pageNumber;
+    shouldPageNext = userCount - 1000 > 0;
+    userCount = userCount - 1000;
+    pageNumber = shouldPageNext ? pageNumber + 1 : pageNumber;
 
-    shouldPageNext = false;
-    pageNumber = 4;
-
-    console.log({ tempUsers });
-    userStorage = [...userStorage, ...tempUsers];
+    if (tempUsers && tempUsers.length > 0) {
+      userStorage = [...userStorage, ...tempUsers];
+    }
   } while (shouldPageNext);
 
   console.log({ userStorage });
