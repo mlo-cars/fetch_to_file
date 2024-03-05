@@ -6,12 +6,15 @@
   "type": "module",
   "scripts": {
     "build": "node buildscripts/build.mjs",
-    "app": "node dist/index.js",
-    "build_and_run": "npm run build && npm run app"
+    "app": "node dist/fetchTableauUsers.js",
+    "app_verify_doty": "node dist/verifyDotyAwards.js",
+    "build_and_run": "npm run build && npm run app",
+    "build_and_run_doty_verification": "npm run build && npm run app_verify_doty"
   },
   "author": "mlo",
   "license": "ISC",
   "dependencies": {
+    "csv-parse": "^5.5.5",
     "email-validator": "^2.0.4",
     "export-to-csv": "^1.2.2",
     "fast-xml-parser": "^4.3.4"

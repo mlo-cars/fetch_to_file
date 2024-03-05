@@ -5,7 +5,7 @@ const buildTarget = "es2017";
 const buildConfig = {
   format: "esm",
   target: buildTarget,
-  entryPoints: ["./src/index.js"],
+  entryPoints: ["./src/fetchTableauUsers.js", "./src/verifyDotyAwards.js"],
   outdir: "./dist",
   bundle: true,
   platform: "node",
