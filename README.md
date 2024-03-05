@@ -15,7 +15,7 @@ This will call Tableau for users and export to `./dist/tableau_users.csv`.
 
 ## Steps
 
-1. Set credentials in _/src/fetchTableauUsers.js_
+1. Set credentials in `/src/fetchTableauUsers.js`
 
 ```js
 const baseUrl = "";
@@ -57,7 +57,7 @@ EG: scopes "National", "Regional", "State"
 
 ### State awards
 
-**Note:** Some state awards at for Canadian awards so the fetch URL will need to be adjusted accordingly for a positive result.
+**Note:** Some state awards are for Canadian awards so the fetch URL will need to be adjusted accordingly for a positive result.
 
 ```js
 const url = `https://cdn-user.dealerrater.com/doty/${year}/US/seal2/state/${make}-${state}.png`;
@@ -85,6 +85,12 @@ npm run build_and_run_doty_verification
 ---
 
 ### National awards
+
+**Note:** Some national awards have missing `make` value due to concept of Overall winner. Add a value of `0` as _make_ to verify.
+
+```js
+const url = `https://cdn-user.dealerrater.com/doty/${year}/US/seal2/national/0.png`;
+```
 
 1. Drop national award files in `/assets/csv/` and update the file path in `verifyDotyAwards.js`
 
